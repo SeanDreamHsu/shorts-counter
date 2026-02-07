@@ -596,7 +596,7 @@ function Options() {
                 <div className="flex items-center gap-3">
                     {/* Platform Filter */}
                     <div className="bg-white/80 backdrop-blur-sm shadow-sm rounded-2xl p-1 flex">
-                        {(['all', 'youtube', 'tiktok'] as const).map((p) => (
+                        {(['all', 'youtube'] as const).map((p) => (
                             <button
                                 key={p}
                                 onClick={() => setFilter(p)}
@@ -608,6 +608,15 @@ function Options() {
                                 {p.charAt(0).toUpperCase() + p.slice(1)}
                             </button>
                         ))}
+                        {/* TikTok - Coming Soon */}
+                        <button
+                            disabled
+                            className="px-4 py-2 text-sm font-medium rounded-xl text-gray-300 cursor-not-allowed flex items-center gap-1.5"
+                            title="TikTok support coming soon!"
+                        >
+                            Tiktok
+                            <span className="text-[10px] px-1.5 py-0.5 bg-gray-200 text-gray-400 rounded-full">Soon</span>
+                        </button>
                     </div>
                     {/* Settings */}
                     <button
@@ -861,7 +870,7 @@ function Options() {
                         <div className="flex items-center gap-3">
                             {/* Platform Filter */}
                             <div className="bg-white/10 backdrop-blur-md rounded-2xl p-1 flex border border-white/10">
-                                {(['all', 'youtube', 'tiktok'] as const).map((p) => (
+                                {(['all', 'youtube'] as const).map((p) => (
                                     <button
                                         key={p}
                                         onClick={() => setFilter(p)}
@@ -873,6 +882,15 @@ function Options() {
                                         {p.charAt(0).toUpperCase() + p.slice(1)}
                                     </button>
                                 ))}
+                                {/* TikTok - Coming Soon */}
+                                <button
+                                    disabled
+                                    className="px-4 py-2 text-sm font-medium rounded-xl text-white/30 cursor-not-allowed flex items-center gap-1.5"
+                                    title="TikTok support coming soon!"
+                                >
+                                    Tiktok
+                                    <span className="text-[10px] px-1.5 py-0.5 bg-white/10 text-white/40 rounded-full">Soon</span>
+                                </button>
                             </div>
                             {/* Settings */}
                             <button
