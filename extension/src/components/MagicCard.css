@@ -1,0 +1,65 @@
+/* MagicCard - Cursor-following glow effect */
+.magic-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--card-radius, 20px);
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.magic-card:hover {
+    transform: translateY(-2px);
+}
+
+/* Border glow effect - follows cursor */
+.magic-card--border-glow::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    padding: 2px;
+    background: radial-gradient(var(--glow-radius, 200px) circle at var(--glow-x, 50%) var(--glow-y, 50%),
+            rgba(var(--glow-color, 139, 92, 246), calc(var(--glow-intensity, 0) * 1.0)) 0%,
+            rgba(var(--glow-color, 139, 92, 246), calc(var(--glow-intensity, 0) * 0.6)) 40%,
+            transparent 70%);
+    border-radius: inherit;
+    -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+    z-index: 10;
+}
+
+/* Inner glow effect */
+.magic-card--border-glow::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(var(--glow-radius, 200px) circle at var(--glow-x, 50%) var(--glow-y, 50%),
+            rgba(var(--glow-color, 139, 92, 246), calc(var(--glow-intensity, 0) * 0.2)) 0%,
+            transparent 60%);
+    border-radius: inherit;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.magic-card:hover {
+    box-shadow:
+        0 4px 20px rgba(0, 0, 0, 0.3),
+        0 0 60px rgba(var(--glow-color, 139, 92, 246), calc(var(--glow-intensity, 0) * 0.4));
+}
+
+/* Content wrapper */
+.magic-card>* {
+    position: relative;
+    z-index: 5;
+}

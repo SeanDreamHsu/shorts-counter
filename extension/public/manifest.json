@@ -1,0 +1,34 @@
+{
+    "manifest_version": 3,
+    "name": "Shorts Tracker",
+    "version": "1.0.0",
+    "description": "Automatically track time spent on YouTube Shorts and TikTok",
+    "permissions": [
+        "storage",
+        "tabs",
+        "webNavigation"
+    ],
+    "host_permissions": [
+        "*://*.youtube.com/*",
+        "*://*.tiktok.com/*"
+    ],
+    "action": {
+        "default_popup": "popup.html"
+    },
+    "options_page": "options.html",
+    "background": {
+        "service_worker": "src/background.js",
+        "type": "module"
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "*://*.youtube.com/*",
+                "*://*.tiktok.com/*"
+            ],
+            "js": [
+                "src/content.js"
+            ]
+        }
+    ]
+}
