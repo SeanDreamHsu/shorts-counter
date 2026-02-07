@@ -57,7 +57,7 @@ interface Session {
 }
 
 const TOOLTIP_CONTENT_STYLE = { backgroundColor: '#333', borderColor: '#444', borderRadius: '8px' }
-const TOOLTIP_CURSOR_STYLE = { fill: 'rgba(255,255,255,0.05)' }
+const TOOLTIP_CURSOR_STYLE = false // Disabled hover highlight
 
 
 const ChartSection = React.memo(({ data }: { data: any[] }) => (
@@ -521,7 +521,7 @@ function Options() {
                             <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} tick={{ fill: experimentalMode ? '#ffffff' : '#6b7280' }} />
                             <Tooltip
                                 contentStyle={{ ...TOOLTIP_CONTENT_STYLE, pointerEvents: 'none' }}
-                                cursor={{ fill: 'rgba(139,92,246,0.1)' }}
+                                cursor={false}
                                 wrapperStyle={{ outline: 'none', pointerEvents: 'none' }}
                                 isAnimationActive={false}
                             />
