@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import ReactDOM from 'react-dom/client'
 import { Bar, BarChart, Line, LineChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Cell } from 'recharts'
-import { Trash2, Clock, PlayCircle, Settings, Zap, Brain, Gamepad2, Smile, Ghost, TrendingUp, TrendingDown, BarChart3, LineChartIcon, Sparkles, Check, AlertCircle, Loader2 } from 'lucide-react'
+import { Trash2, Clock, PlayCircle, Settings, Zap, Brain, Gamepad2, Smile, Ghost, TrendingUp, TrendingDown, BarChart3, LineChartIcon, Sparkles } from 'lucide-react'
 import AppleLiquidCard from './components/AppleLiquidCard'
 import Aurora from './components/Aurora'
 import MagicCard, { MagicGrid } from './components/MagicCard'
 import GlassSurface from './components/GlassSurface'
-import { analyzeWithGemini } from './utils/aiAnalyzer'
-import type { AIAnalysisResult } from './utils/aiAnalyzer'
+// AI analyzer stub - for future use
+// import { analyzeWithGemini } from './utils/aiAnalyzer'
 import './index.css'
 
 // --- Content Analysis Logic (Duplicated for now to keep files independent) ---
@@ -88,30 +88,19 @@ function Options() {
     const [showCapsule, setShowCapsule] = useState(true)
     const [visualDecayMode, setVisualDecayMode] = useState(false)
     const [chartType, setChartType] = useState<'bar' | 'line'>('bar')
-    const [geminiApiKey, setGeminiApiKey] = useState('')
-    const [apiKeyInput, setApiKeyInput] = useState('')
-    const [apiKeySaved, setApiKeySaved] = useState(false)
-    const [apiTestStatus, setApiTestStatus] = useState<'idle' | 'testing' | 'success' | 'error'>('idle')
-    const [useAiAnalysis, setUseAiAnalysis] = useState(false)
-    const [aiResult, setAiResult] = useState<AIAnalysisResult | null>(null)
-    const [aiLoading, setAiLoading] = useState(false)
+    // AI-related state removed - feature coming soon
     const [focusBlockScope, setFocusBlockScope] = useState<'shorts' | 'fullsite'>('shorts')
     const [dailyTimeLimitEnabled, setDailyTimeLimitEnabled] = useState(false)
     const [dailyTimeLimit, setDailyTimeLimit] = useState(30) // minutes
 
     useEffect(() => {
         // Fetch settings
-        chrome.storage.local.get(['history', 'currentSession', 'experimentalMode', 'showCapsule', 'geminiApiKey', 'useAiAnalysis'], (result) => {
+        chrome.storage.local.get(['history', 'currentSession', 'experimentalMode', 'showCapsule'], (result) => {
             if (result.history) setHistory(result.history as Session[])
             if (result.currentSession) setCurrentSession(result.currentSession as any)
             if (result.experimentalMode !== undefined) setExperimentalMode(result.experimentalMode as boolean)
             if (result.showCapsule !== undefined) setShowCapsule(result.showCapsule as boolean)
             if (result.visualDecayMode !== undefined) setVisualDecayMode(result.visualDecayMode as boolean)
-            if (result.geminiApiKey) {
-                setGeminiApiKey(result.geminiApiKey as string)
-                setApiKeyInput(result.geminiApiKey as string)
-            }
-            if (result.useAiAnalysis !== undefined) setUseAiAnalysis(result.useAiAnalysis as boolean)
             if (result.focusBlockScope) setFocusBlockScope(result.focusBlockScope as 'shorts' | 'fullsite')
             if (result.dailyTimeLimitEnabled !== undefined) setDailyTimeLimitEnabled(result.dailyTimeLimitEnabled as boolean)
             if (result.dailyTimeLimit !== undefined) setDailyTimeLimit(result.dailyTimeLimit as number)
@@ -138,35 +127,7 @@ function Options() {
         return () => clearInterval(interval)
     }, [currentSession])
 
-    // AI Analysis trigger
-    useEffect(() => {
-        if (!useAiAnalysis || !geminiApiKey || history.length === 0) {
-            setAiResult(null)
-            return
-        }
-
-        // Collect all titles from today's sessions
-        const todayStart = new Date().setHours(0, 0, 0, 0)
-        const titles: string[] = []
-        history.forEach(s => {
-            if (s.startTime >= todayStart && s.videoLog) {
-                titles.push(...s.videoLog.map(v => v.title))
-            }
-        })
-
-        if (titles.length === 0) {
-            setAiResult(null)
-            return
-        }
-
-        setAiLoading(true)
-        analyzeWithGemini(titles, geminiApiKey)
-            .then(result => {
-                setAiResult(result)
-                setAiLoading(false)
-            })
-            .catch(() => setAiLoading(false))
-    }, [useAiAnalysis, geminiApiKey, history.length])
+    // AI Analysis disabled - coming soon
 
     const deleteSession = (id: string) => {
         const newHistory = history.filter(s => s.id !== id)
@@ -412,93 +373,15 @@ function Options() {
                             )}
                         </div>
 
-                        {/* AI Analysis Section */}
+                        {/* AI Analysis Section - Coming Soon */}
                         <div className="pt-4 border-t border-white/10">
                             <div className="flex items-center gap-2 mb-3">
-                                <Sparkles className="w-4 h-4 text-purple-400" />
-                                <span className="font-medium">AI Analysis</span>
+                                <Sparkles className="w-4 h-4 text-purple-400/50" />
+                                <span className="font-medium text-white/50">AI Analysis</span>
+                                <span className="px-2 py-0.5 text-xs bg-purple-500/20 text-purple-300 rounded-full">Coming Soon</span>
                             </div>
-                            <div className="space-y-3">
-                                <div className="flex gap-2">
-                                    <input
-                                        type="password"
-                                        placeholder="Gemini API Key"
-                                        value={apiKeyInput}
-                                        onChange={e => {
-                                            setApiKeyInput(e.target.value)
-                                            setApiKeySaved(false)
-                                        }}
-                                        className="flex-1 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-sm placeholder:text-white/30 focus:outline-none focus:border-purple-500"
-                                    />
-                                    <button
-                                        onClick={() => {
-                                            setGeminiApiKey(apiKeyInput)
-                                            chrome.storage.local.set({ geminiApiKey: apiKeyInput })
-                                            setApiKeySaved(true)
-                                            setTimeout(() => setApiKeySaved(false), 2000)
-                                        }}
-                                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-1 ${apiKeySaved
-                                            ? 'bg-green-500 text-white'
-                                            : 'bg-purple-500 hover:bg-purple-600 text-white'
-                                            }`}
-                                    >
-                                        {apiKeySaved ? <><Check className="w-4 h-4" /> Saved</> : 'Save'}
-                                    </button>
-                                    <button
-                                        onClick={async () => {
-                                            if (!apiKeyInput) return
-                                            setApiTestStatus('testing')
-                                            try {
-                                                const res = await fetch(
-                                                    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKeyInput}`,
-                                                    {
-                                                        method: 'POST',
-                                                        headers: { 'Content-Type': 'application/json' },
-                                                        body: JSON.stringify({
-                                                            contents: [{ parts: [{ text: 'Say OK' }] }],
-                                                            generationConfig: { maxOutputTokens: 10 }
-                                                        })
-                                                    }
-                                                )
-                                                if (res.ok) {
-                                                    setApiTestStatus('success')
-                                                } else {
-                                                    setApiTestStatus('error')
-                                                }
-                                            } catch {
-                                                setApiTestStatus('error')
-                                            }
-                                            setTimeout(() => setApiTestStatus('idle'), 3000)
-                                        }}
-                                        disabled={!apiKeyInput || apiTestStatus === 'testing'}
-                                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-1 ${apiTestStatus === 'success' ? 'bg-green-500 text-white' :
-                                            apiTestStatus === 'error' ? 'bg-red-500 text-white' :
-                                                'bg-white/10 hover:bg-white/20 text-white disabled:opacity-50'
-                                            }`}
-                                    >
-                                        {apiTestStatus === 'testing' && <Loader2 className="w-4 h-4 animate-spin" />}
-                                        {apiTestStatus === 'success' && <Check className="w-4 h-4" />}
-                                        {apiTestStatus === 'error' && <AlertCircle className="w-4 h-4" />}
-                                        {apiTestStatus === 'idle' && 'Test'}
-                                        {apiTestStatus === 'testing' && 'Testing...'}
-                                        {apiTestStatus === 'success' && 'Works!'}
-                                        {apiTestStatus === 'error' && 'Failed'}
-                                    </button>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <div className="text-sm text-white/60">Use AI for analysis</div>
-                                    <button
-                                        onClick={() => {
-                                            const newVal = !useAiAnalysis
-                                            setUseAiAnalysis(newVal)
-                                            chrome.storage.local.set({ useAiAnalysis: newVal })
-                                        }}
-                                        className={`w-12 h-6 rounded-full transition-colors duration-200 relative ${useAiAnalysis ? 'bg-purple-500' : 'bg-white/10'}`}
-                                    >
-                                        <div className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white shadow-md transition-transform duration-200 ease-out ${useAiAnalysis ? 'translate-x-6' : 'translate-x-0'}`} />
-                                    </button>
-                                </div>
-                                <a href="https://aistudio.google.com/app/apikey" target="_blank" className="text-xs text-purple-400 hover:underline">Get free API key →</a>
+                            <div className="text-sm text-white/40">
+                                AI-powered content analysis will be available in a future update. Stay tuned! 🚀
                             </div>
                         </div>
                     </div>
@@ -895,26 +778,10 @@ function Options() {
 
                 {/* Today's Vibe */}
                 <div className="col-span-12 lg:col-span-4 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 rounded-3xl p-6 shadow-sm">
-                    <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-4 flex items-center gap-2">
+                    <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-4">
                         Today's Vibe
-                        {useAiAnalysis && <Sparkles className="w-3 h-3 text-purple-400" />}
                     </h3>
-                    {aiLoading ? (
-                        <div className="flex items-center gap-3 animate-pulse">
-                            <div className="w-12 h-12 rounded-2xl bg-white/50" />
-                            <div className="h-5 w-28 rounded-lg bg-white/50" />
-                        </div>
-                    ) : useAiAnalysis && aiResult ? (
-                        <div className="flex items-start gap-4">
-                            <div className="p-3 rounded-2xl bg-purple-100">
-                                <Sparkles className="w-6 h-6 text-purple-500" />
-                            </div>
-                            <div>
-                                <div className="text-lg font-semibold text-gray-800">{aiResult.summary}</div>
-                                <div className="text-xs text-gray-400 mt-1">{aiResult.category}</div>
-                            </div>
-                        </div>
-                    ) : (() => {
+                    {(() => {
                         const todayStart = new Date().setHours(0, 0, 0, 0);
                         const vibe = analyzeVibe(filteredHistory, todayStart);
                         return (
@@ -1152,26 +1019,10 @@ function Options() {
                         {/* Vibe Card */}
                         <MagicCard className="col-span-12 lg:col-span-4" glowColor="236, 72, 153" glowRadius={250}>
                             <div className="p-6">
-                                <h3 className="text-xs font-semibold uppercase tracking-wider text-white/40 mb-4 flex items-center gap-2">
+                                <h3 className="text-xs font-semibold uppercase tracking-wider text-white/40 mb-4">
                                     Today's Vibe
-                                    {useAiAnalysis && <Sparkles className="w-3 h-3 text-purple-400" />}
                                 </h3>
-                                {aiLoading ? (
-                                    <div className="flex items-center gap-3 animate-pulse">
-                                        <div className="w-12 h-12 rounded-2xl bg-white/10" />
-                                        <div className="h-5 w-28 rounded-lg bg-white/10" />
-                                    </div>
-                                ) : useAiAnalysis && aiResult ? (
-                                    <div className="flex items-start gap-4">
-                                        <div className="p-3 rounded-2xl bg-purple-500/20">
-                                            <Sparkles className="w-6 h-6 text-purple-400" />
-                                        </div>
-                                        <div>
-                                            <div className="text-lg font-semibold text-white">{aiResult.summary}</div>
-                                            <div className="text-xs text-white/40 mt-1">{aiResult.category}</div>
-                                        </div>
-                                    </div>
-                                ) : (() => {
+                                {(() => {
                                     const todayStart = new Date().setHours(0, 0, 0, 0);
                                     const vibe = analyzeVibe(filteredHistory, todayStart);
                                     return (
