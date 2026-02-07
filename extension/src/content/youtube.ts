@@ -550,7 +550,9 @@ export const initYouTubeDetector = () => {
         }
     });
 
-    // Initial check
+    // Initial check - run immediately plus retries to ensure it applies after YouTube SPA hydration
+    checkFocusMode(); // Immediate
+    setTimeout(checkFocusMode, 500);
+    setTimeout(checkFocusMode, 1500); // Retry after YouTube content loads
     setTimeout(recomputeActiveState, 1000); // Wait for DOM
-    setTimeout(checkFocusMode, 500); // Check focus mode on load (also handles Shorts shelf)
 };
